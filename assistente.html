@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente Virtual Luna</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle, #1e1e2f, #121212);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .orb {
+            width: 100px;
+            height: 100px;
+            background: #00d2ff;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px #00d2ff, 0 0 60px #3a7bd5;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .orb.listening {
+            animation: pulse 1.5s infinite;
+            background: #ff0055;
+            box-shadow: 0 0 20px #ff0055, 0 0 60px #ff0055;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            background: #00d2ff;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #3a7bd5;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-style: italic;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="orb" class="orb"></div>
+        <h1>Olá, eu sou a Luna</h1>
+        <p>Clique no botão e comece a falar</p>
+        <button id="btn-ouvir">Ativar Microfone</button>
+        <p id="status">Aguardando comando...</p>
+    </div>
+
+    <script>
+        const btn = document.getElementById('btn-ouvir');
+        const status = document.getElementById('status');
+        const orb = document.getElementById('orb');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        // Função de Fala
+        function responder(texto) {
+            const f = new SpeechSynthesisUtterance(texto);
+            f.lang = 'pt-BR';
+            window.speechSynthesis.speak(f);
+        }
+        
+        if (!SpeechRecognition) {
+            status.innerText = "Seu navegador não suporta reconhecimento de voz.";
+            responder("Seu navegador não suporta reconhecimento de voz.")
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+
+            
+
+            // Início do Reconhecimento
+            btn.addEventListener('click', () => {
+                recognition.start();
+            });
+
+            recognition.onstart = () => {
+                orb.classList.add('listening');
+                status.innerText = "Ouvindo...";
+            };
+
+            recognition.onresult = (event) => {
+                orb.classList.remove('listening');
+                const comando = event.results[0][0].transcript.toLowerCase();
+                console.log(event)
+                console.log(comando)
+                status.innerText = `Você disse: "${comando}"`;
+
+                if (comando.includes("oi") || comando.includes("olá")) {
+                    responder("Olá! Tudo bem com você?");
+                } else if (comando.includes("horas")) {
+                    const agora = new Date();
+                    responder(`Agora são ${agora.getHours()} horas e ${agora.getMinutes()} minutos.`);
+                } else if (comando.includes("pesquisar por")) {
+                    const busca = comando.replace("pesquisar por", "");
+                    responder(`Pesquisando sobre ${busca} no Google`);
+                    window.open(`https://www.google.com/search?q=${busca}`, "_blank");
+                } else {
+                    responder("Não entendi esse comando, pode repetir?");
+                }
+            };
+
+            recognition.onerror = () => {
+                orb.classList.remove('listening');
+                status.innerText = "Erro ao tentar ouvir.";
+            };
+        }
+    </script>
+</body>
+</html>
