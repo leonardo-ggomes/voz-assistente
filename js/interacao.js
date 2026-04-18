@@ -62,10 +62,16 @@
         // 5. Função que encontra a resposta no "banco de dados"
         function obterRespostaDoBot(prompt) {
             if (respostasDoBot[prompt]) {
-                return respostasDoBot[prompt]; // Retorna a resposta se a pergunta exata for encontrada
+                const r = respostasDoBot[prompt]
+                resposta(r)
+                return r; // Retorna a resposta se a pergunta exata for encontrada
+
+
             } else {
                 // Resposta padrão se não entender
-                return "Desculpe, não entendi essa pergunta. Minhas respostas são limitadas. Tente 'olá' ou 'o que você faz?'.";
+                const msg_padrao = "Desculpe, não entendi essa pergunta. Minhas respostas são limitadas. Tente 'olá' ou 'o que você faz?'.";
+                resposta(msg_padrao)
+                return msg_padrao
             }
         }
 
@@ -112,8 +118,8 @@
             }
 
             s.onresult = (event) => {
-                const p = event.results[0][0].transcript
-                console.log(p)
+                const p = event.results[0][0].transcript                
+                obterRespostaDoBot(p)
             }
 
 
